@@ -1,76 +1,53 @@
-# Garage-Door-Control-System
+# Garage Door Control System
 
-Embedded garage door control system based on RP2040. The system integrates hardware drivers, control logic, and IoT communication to implement a reliable and state-driven garage door controller.
+An RP2040-based embedded project using C/C++, with local controls and MQTT communication for remote commands and status reporting.
 
 ## Overview
 
-This project implements a full embedded control system for a garage door. It combines hardware abstraction, real-time control logic, and MQTT-based communication to enable both local and remote operation.
+The controller uses a stepper motor to move the door, a rotary encoder to track its position, and limit switches to calibrate the travel range.
 
-The system supports encoder-based position tracking, limit switch calibration, and persistent state storage using internal flash memory.
+A state machine manages initialization, calibration, door operation and error handling. Saved state is loaded from internal flash memory at startup.
 
 ## Key Features
 
-- Encoder-based position tracking for accurate door movement measurement  
-- Limit switch calibration for automatic travel range detection  
-- State machine-based control logic (INIT, CALIBRATING, READY, OPEN, CLOSED, ERROR)  
-- MQTT communication for remote control and status reporting  
-- Flash memory persistence for saving system state after reboot  
-- Modular architecture separating hardware, logic, and communication layers  
+- Tracks door position using a rotary encoder.
+- Calibrates the travel range using limit switches.
+- Handles local input and remote MQTT commands.
+- Reports door status through MQTT.
+- Saves system state to internal flash when idle.
+- Separates hardware drivers, control logic, communication and storage into modules.
 
 ## System Architecture
 
-The system is structured into multiple layers:
+`GarageDoorController` coordinates the main modules:
 
-- **Core Controller**
-  - GarageDoorController manages overall system behavior
+| Module | Responsibilities |
+| --- | --- |
+| Hardware | Stepper motor, rotary encoder, limit switches, buttons and LEDs |
+| Control logic | Position tracking, calibration, state transitions and safety checks |
+| Communication | MQTT connection, command parsing, status messages and Wi-Fi configuration |
+| Storage | Loading and saving system state in internal flash |
 
-- **Hardware Layer**
-  - Stepper motor control
-  - Rotary encoder input
-  - Limit switches
-  - Buttons and LEDs
+The controller uses the following states:
 
-- **Logic Layer**
-  - Position tracking
-  - Calibration engine
-  - Safety monitoring
+`INIT`, `CALIBRATING`, `READY`, `OPEN`, `CLOSED`, `ERROR`
 
-- **Communication Layer**
-  - MQTT client
-  - Command parser
-  - Status serializer
-  - WiFi configuration
+## Program Flow
 
-- **Storage Layer**
-  - Internal flash persistence for system state
+At startup, the system initializes the hardware and loads the saved state.
 
-## Project Flow
+The main loop then:
 
-Boot → Initialization → Load state → Main loop
+1. Reads buttons, encoder input and MQTT commands.
+2. Updates the controller state.
+3. Handles calibration and motor movement.
+4. Updates the LEDs and publishes status messages.
+5. Saves state to flash when idle.
 
-Main loop includes:
-- Reading inputs (buttons, encoder, MQTT commands)
-- Updating door state
-- Handling calibration and movement logic
-- Updating LEDs
-- Publishing MQTT status
-- Saving state to flash (when idle)
+## Technology
 
-## Tech Stack
-
-- Language: C / C++
-- Platform: RP2040
-- Communication: MQTT (lwIP)
-- Hardware: Stepper motor, rotary encoder, limit switches
-- Storage: Internal flash memory
-
-## Purpose
-
-This project demonstrates embedded system design principles including modular architecture, state machine control, hardware abstraction, and IoT integration.
-
-## Future Improvements
-
-- Add OTA firmware update support  
-- Improve MQTT message structure with JSON schema  
-- Add real-time diagnostics dashboard  
-- Expand safety monitoring system  
+- **Language:** C/C++
+- **Microcontroller:** RP2040
+- **Networking:** MQTT using lwIP
+- **Hardware:** Stepper motor, rotary encoder, limit switches, buttons and LEDs
+- **Storage:** Internal flash memory
